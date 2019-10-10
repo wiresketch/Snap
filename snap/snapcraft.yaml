@@ -1,0 +1,49 @@
+name: wireframesketcher
+base: core18
+
+version: '6.2.0'
+summary: WireframeSketcher, wireframing tool for professionals (Trial)
+description: |
+  WireframeSketcher, wireframing tool for professionals
+  WireframeSketcher is a software tool that helps product managers,
+  designers and developers quickly create wireframes, mockups and prototypes
+  for desktop, web and mobile applications. It's standalone software and a
+  plug-in for any Eclipse IDE.
+
+grade: stable
+confinement: classic
+
+architectures:
+ - build-on: amd64
+
+apps:
+  wireframesketcher:
+    command: opt/WireframeSketcher/WireframeSketcher
+    desktop: usr/share/applications/wireframesketcherstudio.desktop
+
+parts:
+  wireframesketcher:
+    plugin: dump
+    source: http://cdn.wireframesketcher.com/studio/dist/WireframeSketcher-6.2.0_amd64.deb
+    source-type: deb
+    source-checksum: "sha512/5e4e04de25ab8a79e4d3e2b3de07af2195dc279ca3af182c378655331f520a57a52fce31678d6d9eec3efc872c38f7266d5755be9d7d2d6f1fe91a683bf16378"
+    override-build: |
+      rm usr/bin/wireframesketcher
+      sed -i 's|Icon=WireframeSketcher|Icon=/usr/share/icons/hicolor/scalable/apps/WireframeSketcher\.svg|g' usr/share/applications/wireframesketcherstudio.desktop
+      snapcraftctl build
+      patchelf \
+        --add-needed libffi.so.6 \
+        --add-needed libgdk_pixbuf-2.0.so.0 \
+        --add-needed libgio-2.0.so.0 \
+        --add-needed libglib-2.0.so.0 \
+        --add-needed libgmodule-2.0.so.0 \
+        --add-needed libgobject-2.0.so.0 \
+        --add-needed libsecret-1.so.0 \
+        opt/WireframeSketcher/WireframeSketcher
+    build-packages:
+      - patchelf
+    stage-packages:
+      - libffi6
+      - libgdk-pixbuf2.0-0
+      - libglib2.0-0
+      - libsecret-1-0
